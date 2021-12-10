@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../models/transaction.dart';
+import './transaction_item.dart';
 
 class TransactionList extends StatelessWidget {
   final List<Transaction> transactions;
@@ -20,7 +20,7 @@ class TransactionList extends StatelessWidget {
                   'No transactions added yet!',
                   style: Theme.of(context).textTheme.headline6,
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
                 Container(
@@ -33,43 +33,22 @@ class TransactionList extends StatelessWidget {
               ],
             );
           })
-        : ListView.builder(
-            itemBuilder: (ctx, idx) {
-              return Card(
-                elevation: 5,
-                margin: EdgeInsets.symmetric(vertical: 8, horizontal: 5),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    child: Padding(
-                      padding: EdgeInsets.all(6),
-                      child: FittedBox(
-                        child: Text('\$${transactions[idx].amount}'),
-                      ),
-                    ),
-                  ),
-                  title: Text(
-                    transactions[idx].title,
-                    style: Theme.of(context).textTheme.headline6,
-                  ),
-                  subtitle: Text(
-                    DateFormat.yMMMd().format(transactions[idx].date),
-                  ),
-                  trailing: mediaQuery.size.width > 460
-                      ? FlatButton.icon(
-                          onPressed: () => deleteTx(transactions[idx].id),
-                          icon: Icon(Icons.delete),
-                          textColor: Theme.of(context).errorColor,
-                          label: Text('Delete'),
-                        )
-                      : IconButton(
-                          icon: Icon(Icons.delete),
-                          color: Theme.of(context).errorColor,
-                          onPressed: () => deleteTx(transactions[idx].id),
-                        ),
-                ),
-              );
-            },
-            itemCount: transactions.length,
+        // : ListView.builder( There is a bug in Flutter with Key and ListView.builder, so I switched to code below
+        //     itemBuilder: (ctx, idx) {
+        //       return TransactionItem(
+        //           transaction: transactions[idx],
+        //           mediaQuery: mediaQuery,
+        //           deleteTx: deleteTx);
+        //     },
+        //   itemCount: transactions.length,);
+        : ListView(
+            children: transactions
+                .map((tx) => TransactionItem(
+                    key: ValueKey(tx.id),
+                    transaction: tx,
+                    mediaQuery: mediaQuery,
+                    deleteTx: deleteTx))
+                .toList(),
           );
   }
 }
